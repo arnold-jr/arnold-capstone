@@ -1,0 +1,35 @@
+Hi, I'm Joshua Arnold, and I've developed a web app called AmeniDC.
+
+88% of the household of Washington, DC don't own a car,
+so living near to amenities 
+such as grocery stores, metro stations, and parks
+is at a premium within the District.
+The app AmeniDC aims to quantify just what that premium is, 
+allowing users to 
+quickly visualize relationships 
+between proximitity to amenities 
+and the cost of owning a private residence.
+
+By querying the OpenData.DC API,
+I've extracted property data containing the location and price of every 
+property sale in the District over the last six years. 
+
+I've then  searched within a 1000 meter radius 
+for nearby amenities using the Google Places API. 
+
+Using this data alone, I can construct
+useful map layers which give summaries 
+of the number and type of amenities within a particular neighborhood, 
+but utlimately, 
+the goal is to find hidden 
+gems within the District, that is, 
+areas with a high number of amenities relative to the price. 
+
+To do this, I'vee constructed a regression model 
+which attempts to explain cost in terms of a number of factors 
+such as location and lot size. 
+For location, I fit the data using the KNearestNeighbors regressor, 
+whereas I expect lotsize to vary linearly with the cost. 
+The next step is to constructe linear regressor on the residuals 
+to capture the relationship
+between number and type of amenities.
