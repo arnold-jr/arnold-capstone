@@ -13,14 +13,23 @@
 
     <!-- Bootstrap resources -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    
-    <!-- Custom styles for this template -->
     <link href="jumbotron.css" rel="stylesheet">
    
     <!-- Bokeh resources -->
     {{ js_resources|indent(4)|safe }}
     {{ css_resources|indent(4)|safe }}
     {{ bokeh_script|indent(4)|safe }}
+    
+    <!-- CartoDB resources --> 
+    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
+    <style>
+      html, body, #map {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
 
 
   </head>
@@ -43,31 +52,79 @@
     <div class="jumbotron">
       <div class="container">
         <h1>AmeniDC</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Donate Now!! &raquo;</a></p>
+        <p> 88% of the household of Washington, DC don't own a car,
+            so living near to amenities 
+            such as grocery stores, metro stations, and parks
+            is at a premium within the District.
+            The app AmeniDC aims to quantify just what that premium is, 
+            allowing users to 
+            quickly visualize relationships 
+            between proximitity to amenities 
+            and the cost of owning a private residence.
+        </p>
       </div>
     </div>
 
     <div class="container">
       <!-- Example row of columns -->
+      <div id="map" style="height: 80vh; width: 80vw"></div>
+
+      <!-- include cartodb.js library -->
+      <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"></script>
+
+      <script>
+        function main() {
+          cartodb.createVis('map', 'https://jarnold111.cartodb.com/api/v2/viz/898fc98c-ba58-11e5-abbb-0e31c9be1b51/viz.json', {
+              shareable: false,
+              title: false,
+              description: true,
+              search: false,
+              tiles_loader: false,
+              center_lat: 38.904722,
+              center_lon: -77.016389,
+              zoom: 12
+          })
+          .done(function(vis, layers) {
+            // layer 0 is the base layer, layer 1 is cartodb layer
+            // setInteraction is disabled by default
+            layers[1].setInteraction(true);
+            layers[1].on('featureOver', function(e, latlng, pos, data) {
+              cartodb.log.log(e, latlng, pos, data);
+            });
+            // you can get the native map to work with it
+            var map = vis.getNativeMap();
+            // now, perform any operations you need
+            // map.setZoom(3);
+            // map.panTo([50.5, 30.5]);
+          })
+          .error(function(err) {
+            console.log(err);
+          });
+        }
+        window.onload = main;
+      </script>
+
+      <hr>
+    </div> <!-- /container -->
+
+
+
+    <div class="container">
+      <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-5">
           <h2>Heading</h2>
           <p>Ho </p>
           <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
         </div>
         <div class="col-md-2">
-          <h2>Heading</h2>
+          <h2>A bokeh plot!</h2>
             <!-- Put the Bokeh plots here -->
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+            {{ bokeh_div|indent(4)|safe }}
         </div>
       </div>
 
       <hr>
-   
-      <!-- Put the Bokeh plots here -->
-      {{ bokeh_div|indent(4)|safe }}
-
       <footer>
         <p>&copy; AmeniDC, Ltd.</p>
       </footer>

@@ -21,30 +21,32 @@ def render_plot(x,Y):
   # output to static HTML file
   output_file("lines.html", title="line plot example")
 
-  TOOLS="resize,crosshair,pan,wheel_zoom,box_zoom,reset, \
+  TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset, \
     box_select,lasso_select"
 
   # create a new plot with a title and axis labels
-  p = figure(width=1000, height=750,
-         title="simple line example", x_axis_type='datetime', 
-         x_axis_label='x', y_axis_label='y',
-         tools=TOOLS)
+  p = figure(width=600, height=450, tools=TOOLS)
+
+  #p = figure(width=400, height=300,
+  #       title="simple line example", x_axis_type='datetime', 
+  #       x_axis_label='x', y_axis_label='y',
+  #       tools=TOOLS)
 
 
   # add a line renderer with legend and line thickness
-  p.line(x, np.log(x), legend="Close", line_width=1, color='gray')
+  p.line(x, np.log(x), line_width=1, color='gray')
 
 
   #p.legend.orientation = "top_left"
   p.grid.grid_line_alpha=0
   p.xaxis.axis_label = 'Date'
-  p.xaxis.axis_label_text_font_size = '24pt'
-  p.xaxis.major_label_text_font_size = '20pt'
+  p.xaxis.axis_label_text_font_size = '14pt'
+  p.xaxis.major_label_text_font_size = '14pt'
 
-  p.yaxis.major_label_text_font_size = '20pt'
+  p.yaxis.major_label_text_font_size = '14pt'
   p.yaxis.axis_label = 'Price / $'
 
-  p.yaxis.axis_label_text_font_size = '24pt'
+  p.yaxis.axis_label_text_font_size = '14pt'
   p.ygrid.band_fill_color="olive"
   p.ygrid.band_fill_alpha = 0.1
 
