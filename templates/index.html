@@ -43,31 +43,43 @@
     <div class="jumbotron">
       <div class="container">
         <h1>AmeniDC</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Donate Now!! &raquo;</a></p>
+        <p> 88% of the household of Washington, DC don't own a car,
+            so living near to amenities 
+            such as grocery stores, metro stations, and parks
+            is at a premium within the District.
+            The app AmeniDC aims to quantify just what that premium is, 
+            allowing users to 
+            quickly visualize relationships 
+            between proximitity to amenities 
+            and the cost of owning a private residence.
+        </p>
       </div>
     </div>
 
     <div class="container">
       <!-- Example row of columns -->
+
+      <hr>
+    </div> <!-- /container -->
+
+
+
+    <div class="container">
+      <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-5">
           <h2>Heading</h2>
           <p>Ho </p>
           <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
         </div>
         <div class="col-md-2">
-          <h2>Heading</h2>
+          <h2>A bokeh plot!</h2>
             <!-- Put the Bokeh plots here -->
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+            {{ bokeh_div|indent(4)|safe }}
         </div>
       </div>
 
       <hr>
-   
-      <!-- Put the Bokeh plots here -->
-      {{ bokeh_div|indent(4)|safe }}
-
       <footer>
         <p>&copy; AmeniDC, Ltd.</p>
       </footer>
