@@ -25,7 +25,7 @@ def render_plot(x,Y):
     box_select,lasso_select"
 
   # create a new plot with a title and axis labels
-  p = figure(width=800, height=600, tools=TOOLS)
+  p = figure(width=600, height=450, tools=TOOLS)
 
   #p = figure(width=400, height=300,
   #       title="simple line example", x_axis_type='datetime', 
