@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="J. Arnold">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>AmeniDC</title>
 
@@ -21,7 +20,6 @@
     {{ bokeh_script|indent(4)|safe }}
     
     <!-- CartoDB resources --> 
-    <link rel="shortcut icon" href="http://cartodb.com/assets/favicon.ico" />
     <style>
       html, body, #map {
         height: 100%;
@@ -74,7 +72,7 @@
 
       <script>
         function main() {
-          cartodb.createVis('map', 'https://jarnold111.cartodb.com/api/v2/viz/898fc98c-ba58-11e5-abbb-0e31c9be1b51/viz.json', {
+          cartodb.createVis('map', 'https://jarnold111.cartodb.com/api/v2/viz/f059464c-cab7-11e5-85cc-0e3a376473ab/viz.json', {
               shareable: false,
               title: false,
               description: true,
@@ -112,11 +110,6 @@
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-5">
-          <h2>Heading</h2>
-          <p>Ho </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-        </div>
         <div class="col-md-2">
           <h2>A bokeh plot!</h2>
             <!-- Put the Bokeh plots here -->
