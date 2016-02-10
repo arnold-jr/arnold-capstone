@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, redirect
-
+import os
 from bokeh.resources import CDN 
 from bokeh.util.string import encode_utf8
-
 from bokeh_maker import make_plot
  
 app = Flask(__name__)
+app.config.from_object('amenidc_settings.Config')
+app.config.from_object(os.environ['AMENIDC_SETTINGS'])
+print os.environ['AMENIDC_SETTINGS']
+
+
 app.vars = {'plot_name':'cmg',
     'bokeh_script':'',
     'bokeh_div':''}
@@ -35,5 +39,4 @@ def index():
 
 
 if __name__ == '__main__':
-  app.run(debug=True)
-  #app.run(host='0.0.0.0',debug=False)
+  app.run()
