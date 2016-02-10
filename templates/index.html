@@ -13,7 +13,15 @@
     <!-- Bootstrap resources -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link href="jumbotron.css" rel="stylesheet">
-   
+
+    <style>
+      .inner {
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+      }
+    </style>
+
     <!-- Bokeh resources -->
     {{ js_resources|indent(4)|safe }}
     {{ css_resources|indent(4)|safe }}
@@ -24,10 +32,13 @@
       html, body, #map {
         height: 100%;
         padding: 0;
-        margin: 0;
+        margin-left: auto;
+        marting-right: auto;
       }
     </style>
     <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+
+    
 
 
   </head>
@@ -50,7 +61,7 @@
     <div class="jumbotron">
       <div class="container">
         <h1>AmeniDC</h1>
-        <p> 88% of the household of Washington, DC don't own a car,
+        <p> 88% of the households of Washington, DC don't own a car,
             so living near to amenities 
             such as grocery stores, metro stations, and parks
             is at a premium within the District.
@@ -107,14 +118,13 @@
 
 
 
+
     <div class="container">
       <!-- Example row of columns -->
-      <div class="row">
-        <div class="col-md-2">
-          <h2>A bokeh plot!</h2>
-            <!-- Put the Bokeh plots here -->
-            {{ bokeh_div|indent(4)|safe }}
-        </div>
+      <div class="inner">
+        <h2>A bokeh plot!</h2>
+          <!-- Put the Bokeh plots here -->
+        {{ bokeh_div|indent(4)|safe }}
       </div>
 
       <hr>
