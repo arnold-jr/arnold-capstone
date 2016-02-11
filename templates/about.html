@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% set active_page = "about" %}
+{% block title %}About{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock head%}
+
+{% block content %}
+
+<div class="container">
+  <table style="margin-left:auto; margin-right:auto; width:80%;">
+  {% for image in img_list %}
+    <tr>
+      <td valign="top">
+        <img src= 
+          "{{ url_for('static',filename=image[0]) }}" 
+          width="400" height="300" alt=image[0] 
+          border="50">
+      </td>
+      <td valign="top">
+        <img src= 
+          "{{ url_for('static',filename=image[1]) }}" 
+          width="400" height="300" alt=image[1] 
+          border="50">
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</div> <!-- container> 
+
+{% endblock content %}
