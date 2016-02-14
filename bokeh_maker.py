@@ -69,7 +69,7 @@ def render_plot(this_df):
   tools="crosshair,pan,box_zoom,reset,box_select,lasso_select"
 
 
-  p = figure(width=800, height=600,tools=tools, 
+  p = figure(width=720, height=540,tools=tools, 
       y_range=[ DISPLAY_NAMES[col] 
         for col in reversed(this_df.columns.tolist()) ])
 

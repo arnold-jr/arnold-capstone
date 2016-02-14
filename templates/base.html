@@ -13,7 +13,8 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="J. Arnold">
-
+    <title>{% block title %}{% endblock title %}</title>
+    
 
     <!-- Bootstrap resources -->
     <link rel="stylesheet" 
@@ -28,15 +29,9 @@
       }
     </style>
 
-    {#
-    <!-- Bokeh resources -->
-    {{ js_resources|indent(4)|safe }}
-    {{ css_resources|indent(4)|safe }}
-    {{ bokeh_script|indent(4)|safe }}
-    #} 
-
-    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
-  {% endblock %}
+    <link rel="stylesheet" 
+    href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+  {% endblock head %}
 </head>
 <body>
     {% block navbar %}

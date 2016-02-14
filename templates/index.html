@@ -1,8 +1,21 @@
 {% extends "base.html" %}
 {% set active_page = "index" %}
-{% block title %}Index{% endblock %}
+{% block title %}AmeniDC Home{% endblock %}
 {% block head %}
   {{ super() }}
+
+  <!-- Bokeh resources -->
+  {{ js_resources|indent(4)|safe }}
+  {{ css_resources|indent(4)|safe }}
+  {{ bokeh_script|indent(4)|safe }}
+  <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script-->
+  <style>
+    #bokeh_plot {
+      margin: auto;
+      width: 80%;
+    }
+  </style>
+
 {% endblock head %}
 {% block content %}
   <!-- Main jumbotron for a primary marketing message or call to action -->
@@ -12,16 +25,6 @@
       <p> See the cost of living near amenities in the District of 
           Columbia
       </p>
-      <!--p> 88% of the households of Washington, DC don't own a car,
-          so living near to amenities 
-          such as grocery stores, metro stations, and parks
-          is at a premium within the District.
-          The app AmeniDC aims to quantify just what that premium is, 
-          allowing users to 
-          quickly visualize relationships 
-          between proximitity to amenities 
-          and the cost of owning a private residence.
-      </p-->
     </div>
   </div>
   <div class="container">
@@ -36,7 +39,7 @@
     <script>
       function main() {
         cartodb.createVis('map', 
-        'https://jarnold111.cartodb.com/api/v2/viz/f059464c-cab7-11e5-85cc-0e3a376473ab/viz.json', {
+        'https://jarnold111.cartodb.com/api/v2/viz/08b0a752-d2a7-11e5-9ca8-0ecd1babdde5/viz.json', {
             shareable: false,
             title: false,
             description: true,
@@ -66,7 +69,15 @@
       window.onload = main;
     </script>
 
+    <div id="bokeh_plot" >
+      <h2 style="text-align: center;">{{ bokeh_zipcode }} </h2>
+        <!-- Put the Bokeh plots here -->
+        {{ bokeh_div|indent(4)|safe }}
+    </div>
 
     <hr>
   </div> <!-- /container -->
+  
+  
+    
 {% endblock content%}
