@@ -47,8 +47,6 @@
 
   <div id="map" style="margin-left:auto; margin-right:auto;
       height: 80vh; width: 80vw"></div>
-    <!--script src="{{ url_for('static',filename='cartodb_amenidc.js') }}">
-    </script-->   
     <script>
       var carto = {{ cartodb_map|tojson }};
       function main() {
@@ -57,7 +55,7 @@
         shareable: false,
         title: false,
         description: true,
-        search: false,
+        search: true,
         tiles_loader: false,
         center_lat: 38.904722,
         center_lon: -77.016389,
