@@ -8,126 +8,162 @@ from bokeh.plotting import figure
 from bokeh.models import Range1d, LinearAxis
 from bokeh.embed import components
 
-DISPLAY_NAMES = {
-  'SALEPRICE': "Sale price",
-  'bakery_count': "Bakeries",
-  'bar_count': "Bars",
-  'cafe_count': "Cafes",
-  'grocery_or_supermarket_count': "Groceries",
-  'movie_theater_count': "Movie Theaters",
-  'park_count': "Parks",
-  'pharmacy_count': "Pharmacies",
-  'restaurant_count': "Restaurants",
-  'school_count': "Schools",
-  'spa_count': "Spas",
-  'subway_station_count': "Metro Stations"
-  }
 
-def parse_column_name():
-  '''Prepare the data to plot from the database'''
-  this_df = pd.DataFrame( 
-    {'SALEPRICE': {'20008': 901813.09850746265},
-    'bakery_count': {'20008': 6.2850746268656712},
-    'bar_count': {'20008': 25.435820895522387},
-    'cafe_count': {'20008': 13.088059701492538},
-    'grocery_or_supermarket_count': {'20008': 8.7253731343283576},
-    'movie_theater_count': {'20008': 1.1417910447761195},
-    'park_count': {'20008': 8.4074626865671647},
-    'pharmacy_count': {'20008': 8.071641791044776},
-    'restaurant_count': {'20008': 43.562686567164178},
-    'school_count': {'20008': 18.622388059701493},
-    'spa_count': {'20008': 6.4850746268656714},
-    'subway_station_count': {'20008': 1.6850746268656716}}
-    )
+DISPLAY_COUNT_KEYS = [
+  'SALEPRICE',
+  'bakery_count',
+  'bar_count',
+  'cafe_count',
+  'grocery_or_supermarket_count',
+  'movie_theater_count',
+  'park_count',
+  'pharmacy_count',
+  'restaurant_count',
+  'school_count',
+  'spa_count',
+  'subway_station_count',
+  ]
 
-  
-  return this_df.append(
-    pd.DataFrame.from_dict(
-      {'query':
-          {'SALEPRICE': 966153.51489868888,
-          'bakery_count': 18.389749702026222,
-          'bar_count': 56.282479141835516,
-          'cafe_count': 41.280691299165674,
-          'grocery_or_supermarket_count': 30.650774731823599,
-          'movie_theater_count': 1.3510131108462455,
-          'park_count': 19.90405244338498,
-          'pharmacy_count': 23.856376638855782,
-          'restaurant_count': 58.564362336114421,
-          'school_count': 45.101907032181167,
-          'spa_count': 16.930274135876044,
-          'subway_station_count': 2.3134684147794995}
-       }, orient='index'
-      )
-    )
+DISPLAY_RATING_KEYS = [
+  'SALEPRICE',
+  'bakery_mean_rating',
+  'bar_mean_rating',
+  'cafe_mean_rating',
+  'grocery_or_supermarket_mean_rating',
+  'movie_theater_mean_rating',
+  'park_mean_rating',
+  'pharmacy_mean_rating',
+  'restaurant_mean_rating',
+  'school_mean_rating',
+  'spa_mean_rating',
+  'subway_station_mean_rating',
+  ]
 
-      
-def render_plot(this_df):
+DISPLAY_PRICE_KEYS = [
+  'SALEPRICE',
+  'bakery_mean_price_level',
+  'bar_mean_price_level',
+  'cafe_mean_price_level',
+  'grocery_or_supermarket_mean_price_level',
+  'movie_theater_mean_price_level',
+  'park_mean_price_level',
+  'pharmacy_mean_price_level',
+  'restaurant_mean_price_level',
+  'school_mean_price_level',
+  'spa_mean_price_level',
+  'subway_station_mean_price_level',
+  ]
+
+DISPLAY_VALUES = [
+  "Sale price",
+  "Bakeries",
+  "Bars",
+  "Cafes",
+  "Groceries",
+  "Movie Theaters",
+  "Parks",
+  "Pharmacies",
+  "Restaurants",
+  "Schools",
+  "Spas",
+  "Metro Stations"
+  ]
+
+
+def render_plot(this_df,zipcode,address,amenity_x_type):
   '''Plot the values and return script and div objects'''
-  # output to static HTML file
-  #output_file("lines.html", title="line plot example")
-  
+
+  if amenity_x_type == 'count':
+    display_keys = DISPLAY_COUNT_KEYS
+    xlabel = 'Average Number of Amenities within 1km Radius'
+    x_range = Range1d(0,60)
+  elif amenity_x_type == 'rating':
+    display_keys = DISPLAY_RATING_KEYS
+    xlabel = 'Average Star Rating of Amenities within 1km Radius'
+    x_range = Range1d(0,5)
+  elif amenity_x_type == 'price':
+    display_keys = DISPLAY_PRICE_KEYS
+    xlabel = 'Average Price Level of Amenities within 1km Radius'
+    x_range = Range1d(0,5)
+
+  df = this_df.loc[:,display_keys]
   tools="crosshair,pan,box_zoom,reset,box_select,lasso_select"
 
+  p1 = figure(width=720, height=720,tools=tools, 
+        y_range=list(reversed(DISPLAY_VALUES))
+      )
 
-  p = figure(width=720, height=540,tools=tools, 
-      y_range=[ DISPLAY_NAMES[col] 
-        for col in reversed(this_df.columns.tolist()) ])
 
   # Set y axis properties
-  p.yaxis.axis_label = 'Amenity type'
-  p.yaxis.axis_label_text_font_size = '12pt'
-  p.yaxis.major_label_text_font_size = '12pt'
+  #p1.yaxis.axis_label = 'Amenity type'
+  p1.yaxis.axis_label_text_font_size = '12pt'
+  p1.yaxis.major_label_text_font_size = '12pt'
+  p1.yaxis.bounds = [-1,len(DISPLAY_VALUES)]
 
   # Set primary x axis properties
-  p.xaxis.axis_label = 'Average Number of Amenities within 1km Radius'
-  p.xaxis.axis_label_text_font_size = '12pt'
-  p.xaxis.major_label_text_font_size = '12pt'
-  p.x_range = Range1d(0,60)
+  p1.xaxis.axis_label = xlabel 
+  p1.xaxis.axis_label_text_font_size = '12pt'
+  p1.xaxis.major_label_text_font_size = '12pt'
+  p1.x_range = x_range 
 
   # Setting the second x axis range name and range
-  p.extra_x_ranges ={"saleprice": Range1d(start=0, end=10)}
+  p1.extra_x_ranges ={"saleprice": Range1d(start=0, end=10)}
 
   # Adding the second axis to the plot.  
-  p.add_layout(
+  p1.add_layout(
       LinearAxis(x_range_name="saleprice",
           axis_label='Sale price / $100,000',
           axis_label_text_font_size = '12pt'), 'above')
                     
                     
   # Make background and grid look like seaborn
-  p.background_fill_color = "#EAEAF2"
-  p.grid.grid_line_alpha = 1.0
-  p.grid.grid_line_color = "white"
+  p1.background_fill_color = "#EAEAF2"
+  p1.grid.grid_line_alpha = 1.0
+  p1.grid.grid_line_color = "white"
 
+  #p1.title = title 
+  
 
   height = 0.4
   offsets = np.linspace(-0.5,0.5,2)*height
   colors = [(76,114,176),(253,141,60)]
-  j = len(this_df.columns)
-  for k,v in this_df.iteritems():
+  legend_items = (address,zipcode)
+  j = len(df.columns)
+  for k,v in df.iteritems():
     #print k,v.tolist()
     if k == 'SALEPRICE':
       x_range_name = 'saleprice'
       v /= 100000
     else:
       x_range_name = None
-
     for i in xrange(0,2):
-      p.rect(x=v[i]/2, y=j+offsets[i], width=abs(v[i]), 
+      if j == 1:
+        legend_item = legend_items[i]
+      else:
+        legend_item = None
+
+      p1.rect(x=v[i]/2, y=j+offsets[i], width=abs(v[i]), 
           height=height, color=colors[i],
-          width_units="data", height_units="data",x_range_name=x_range_name)
+          width_units="data", height_units="data",x_range_name=x_range_name,
+          legend=legend_item)
     j -= 1
+  
+  p1.legend.orientation = "bottom_right"
     
   # show the results
-  return components(p)
+  return components(p1)
 
-def make_plot():
-  if 1: 
-    script, div = render_plot( parse_column_name() )
-    return True, script, div
+def make_plots(this_df,zipcode,q_address,amenity_x_type):
+  if 1:
+    flag = True
+    script, div = render_plot(this_df,zipcode,q_address,amenity_x_type)
+
   else:
-    return False, 'Invalid script', 'Invalid div'
+    flag, script, div = False, 'Invalid script', 'Invalid div'
+   
+  return flag, script, div
+
 
 if __name__ == "__main__":
-  make_plot()
+  make_plots("3801 Connecticut_Ave NW, Washington DC")
 
