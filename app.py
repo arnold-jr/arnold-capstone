@@ -20,20 +20,29 @@ with open("../secrets/amenidc_secrets.json.nogit") as fh:
   google_geocode_api_key = secrets['google_geocode_api_key']
   cartodb_api_key = secrets['cartodb_api_key']
 
+# Read in app configuration using environment variables
 app = Flask(__name__)
 app.config.from_object('amenidc_settings.Config')
 app.config.from_object(os.environ['AMENIDC_SETTINGS'])
 print os.environ['AMENIDC_SETTINGS']
 
-app.vars = {'df':None, 'this_df':None}
+
+# Read in dataframe and store as app member 
+app.vars = {'df':None, 'this_df':None, 'model':None}
 def data_reader():
-  #global app
   df = pd.read_csv('./data/mean_by_zip_04.csv')
   df['zipcode'] = df['zipcode'].astype(str)
   df.set_index('zipcode',inplace=True)
   app.vars['df'] = df 
-
 data_reader()
+
+# Read in pickled sklearn model and store as app member 
+def model_reader():
+  with open('./ml/p_city_model.dpkl', 'rb') as p_input:
+    model = pickle.load(p_input)
+  app.vars['model'] = model 
+model_reader()
+
 
 def prep_plot_df(q_address):
   '''Prepare the data to plot by a) quering the mean_by_zipcode database
