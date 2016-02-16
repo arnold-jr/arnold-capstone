@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% set active_page = "about" %}
+{% set fig_width = 300 %}
+{% set fig_height = fig_width*3/4 %}
+{% block title %}About AmeniDC{% endblock %}
+{% block head %}
+  {{ super() }}
+  <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script-->
+  <style>
+    #figure_div {
+      margin: auto;
+      width: 80%;
+    }
+    #figure {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+{% endblock head%}
+
+{% block content %}
+  <div class="jumbotron">
+    <div class="container">
+      <h2>About the data</h2>
+      <p> 88% of the households of Washington, DC don't own a car,
+          so living near to amenities 
+          such as grocery stores, metro stations, and parks
+          is at a premium within the District.
+          The app AmeniDC aims to quantify just what that premium is, 
+          allowing users to 
+          quickly visualize relationships 
+          between proximitity to amenities 
+          and the cost of owning a private residence.
+      </p>
+      <p> Records of residential property sales since Febraury 29, 2012
+      were gathered from 
+      <a href="http://opendata.dc.gov/datasets/2acc75ccdd954267acecb8713b2b800a_28">DC's open data reposity</a>.
+      Each property sale location was uniquely indentified by latitude
+      and longitude, so each of these locations could be queried using
+      the <a href="google.com">Google Places API</a>. 
+      </p>
+    </div>
+  </div>
+
+<div id="figure_div">
+  <table id="figure_table">
+  {% for image in img_list %}
+    <tr>
+      <td valign="top">
+        <img id="figure" src="{{ url_for('static',filename=image[0]) }}" 
+          alt=image[0] >
+      </td>
+      <td valign="top">
+        <img id="figure" src="{{ url_for('static',filename=image[1]) }}" 
+          alt=image[1] >
+      </td>
+      <td valign="top">
+        <img id="figure" src="{{ url_for('static',filename=image[2]) }}" 
+          alt=image[2] >
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</div> <!-- container--> 
+
+{% endblock content %}
