@@ -1,9 +1,12 @@
+
+// Intro
 Hi, my name is Joshua Arnold. I earned my PhD in Environmental 
 Engineering at Vanderbilt University, and I recently completed a 
 Post-doctoral appointment at the National Institute of Standards and 
 Technology. For my Capstone project, I've developed a web application 
 called AmeniDC.
 
+// The Map
 AmeniDC allows prospective home buyers in the District of Columbia 
 to quickly visualize relationships between
 the sale price of a residential home 
@@ -13,46 +16,49 @@ has been partitioned by zipcode.
 By clicking the buttons on the right, users can toggle through chloropeth
 maps of typical sale price in a zipcode as well as the typical number 
 of Grocery Stores, Restaurants, 
-and Metro Stations within 1 km of a home in that zipcode.
+and Metro Stations within a kilometer of a home in that zipcode.
 Clicking on any particular zipcode displays a pop-up
-window containing a more-detailed breakdown of the surrounding amenities
-for any particular zipcode. 
+window containing a more-detailed breakdown of the surrounding amenities. 
 
+// The Search
 Once the user has honed in on a particular area, he or she can 
-enter a DC street address into the box below, which generates a 
+enter a street address into the box below, which generates a 
 bar graph depicting an estimated sale price for the location as well
 as the count of amenities that lie within 1 km of that location.
 
+
+// The Query
 This prediction was made possible  
 by first querying DC's open data repository 
 for all residential property sales from the last four years.
-
-Although this data is rich with features such as tax assessments 
-and value added by lot improvements, this information is 
-typically not known to a 
-prospective home buyer in the early stages of his or her search.
-
-However, 
-the working hypothesis going into this problem was that the number of
+The working hypothesis going into this problem was that proximity to 
 nearby amenities 
-could be used as a predictor of property sale price given that the
+could be used as a predictor of property sale price given that 
 commuting is relatively difficult in the District.
 
 Thus, the distribution of nearby amenities was found  by using the Google 
 Places API to query up to 650 amenities within one kilometer of each 
 sale location.
 
+// The Modeling
 After constructing K-neighbors and random forest regression models,
 it was determined using either location coordinates or nearby amenity 
 distributions as features resulted in approximately the same mean-squared
 error.
 
+// Conclusion
 If you'd like to learn more I encourage you to head over to asldkf;asl.com
 for a more detailed breakdown of the analysis.
 
 Thank you for your attention.
 
 
+
+
+Although this data is rich with features such as tax assessments 
+and value added by lot improvements, this information is 
+typically not known to a 
+prospective home buyer in the early stages of his or her search.
 
 
 The accuracy of each model was improved by about 5 base points
