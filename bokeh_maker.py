@@ -141,9 +141,14 @@ def render_plot(this_df,zipcode,address,amenity_x_type):
         legend_item = legend_items[i]
       else:
         legend_item = None
+      
+      if j == len(df.columns):
+        alpha = 0.7
+      else:
+        alpha = 1.0
 
       p1.rect(x=v[i]/2, y=j+offsets[i], width=abs(v[i]), 
-          height=height, color=colors[i],
+          height=height, color=colors[i], fill_alpha=alpha,
           width_units="data", height_units="data",x_range_name=x_range_name,
           legend=legend_item)
     j -= 1

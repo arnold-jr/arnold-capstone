@@ -62,11 +62,11 @@
     {% endblock navbar %}
   
   <div id="content">{% block content %}{% endblock %}</div>
-
-  <div id="footer">
-      {% block footer %}
+  
+  {% block footer %}
+    <div id="footer">
       AmeniDC, 2016 
-      {% endblock %}
-  </div>
+    </div>
+  {% endblock %}
 </body>
 </html>

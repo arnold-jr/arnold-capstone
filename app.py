@@ -1,17 +1,21 @@
 from flask import Flask, render_template, request, redirect, g
+import os
+
 from wtforms import Form, TextField, validators
+
 import requests
 import simplejson as json
 import pandas as pd
-import os
-import sqlite3
+
+import dill as pickle
+
+#import sqlite3
 from bokeh.resources import CDN 
 from bokeh.util.string import encode_utf8
 
 from geocode_query import get_zip_and_lat_lng
 from place_query import get_local_amenities
 from bokeh_maker import make_plots
-
 
 # Read in all API keys
 with open("../secrets/amenidc_secrets.json.nogit") as fh: 
@@ -20,20 +24,30 @@ with open("../secrets/amenidc_secrets.json.nogit") as fh:
   google_geocode_api_key = secrets['google_geocode_api_key']
   cartodb_api_key = secrets['cartodb_api_key']
 
+# Read in app configuration using environment variables
 app = Flask(__name__)
 app.config.from_object('amenidc_settings.Config')
 app.config.from_object(os.environ['AMENIDC_SETTINGS'])
 print os.environ['AMENIDC_SETTINGS']
 
-app.vars = {'df':None, 'this_df':None}
+
+# Read in dataframe and store as app member 
+app.vars = {'df':None, 'this_df':None, 'model':None}
 def data_reader():
-  #global app
   df = pd.read_csv('./data/mean_by_zip_04.csv')
   df['zipcode'] = df['zipcode'].astype(str)
   df.set_index('zipcode',inplace=True)
   app.vars['df'] = df 
-
 data_reader()
+
+# Read in pickled sklearn model and store as app member 
+def model_reader():
+  with open('./data/p_combo_model_rf.dpkl', 'rb') as p_input:
+    model = pickle.load(p_input)
+  app.vars['model'] = model
+  #print model.get_params()
+model_reader()
+
 
 def prep_plot_df(q_address):
   '''Prepare the data to plot by a) quering the mean_by_zipcode database
@@ -42,11 +56,14 @@ def prep_plot_df(q_address):
   lat_lng, zipcode, address = get_zip_and_lat_lng(google_geocode_api_key,q_address)
   print lat_lng, zipcode, address
 
-  this_df = app.vars['df'].loc[[zipcode],:]
-  this_df =  this_df.append(get_local_amenities(google_api_key,lat_lng))
+  zip_df = app.vars['df'].loc[[zipcode],:]
+  query_df = get_local_amenities(google_api_key,lat_lng) 
 
   # predict this price
-  this_df.loc['summary','SALEPRICE'] = 1000000.0
+  #query_df.loc['summary','SALEPRICE'] = 1000000.0
+  query_df.loc['summary','SALEPRICE'] = app.vars['model'].predict(query_df) 
+  
+  this_df = zip_df.append(query_df)
   
   app.vars['this_df'] = this_df.fillna(0)
   return address, zipcode
@@ -69,20 +86,26 @@ class AddressQueryForm(Form):
 @app.route('/index', methods=['POST', 'GET'])
 def index():
   cartodb_map = request_cartodb()
-  
+  map_layers = [
+      ("0","Mean Sale Price"),
+      ("1","Groceries"),
+      ("2","Restaurants"),
+      ("3","Metro Stations"),
+      ]
+
   form = AddressQueryForm(request.form) 
 
   js_resources = CDN.render_js()
   css_resources = CDN.render_css()
 
-  amenity_x_type, amenity_x_disp = 'price','Average Price Level'
+  amenity_x_type, amenity_x_disp = 'count','Average Price Level'
 
   if request.method == 'POST' and form.validate():
     q_address = form.address.data 
     f_address,zipcode = prep_plot_df(q_address) 
     
     flag, bokeh_script, bokeh_div = make_plots(app.vars['this_df'],
-        q_address, zipcode, 'rating')
+        q_address, zipcode, amenity_x_type)
     bp_visibility="visible"
   elif request.method == 'GET':
     flag, bokeh_script, bokeh_div = (False, '', '')
@@ -93,6 +116,7 @@ def index():
       cartodb_map=cartodb_map,
       form=form,
       bp_visibility=bp_visibility,
+      map_layers=map_layers,
       amenity_x_disp=amenity_x_disp,
       js_resources=js_resources,
       css_resources=css_resources,
@@ -136,6 +160,9 @@ def about():
     ("images/spa_count.png",
     "images/spa_mean_price_level.png",
     "images/spa_mean_rating.png",),
+    ("images/subway_station_count.png",
+    "images/subway_station_mean_price_level.png",
+    "images/subway_station_mean_rating.png",),
   ]
   
   return render_template('about.html',img_list=img_list)

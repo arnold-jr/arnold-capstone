@@ -134,6 +134,13 @@ def get_local_amenities(google_api_key,lat_lng):
                         index=df.index)], axis = 1
               )
 
+
+  # Include the latitude and longitude
+  lat,lng = [float(el) for el in lat_lng.split(',')]
+  df['latitude'] = lat
+  df['longitude'] = lng
+
+
   return df.drop(AMENITY_TYPES+[col for col in df.columns  
                   if '_count_rating' in col or '_count_price' in col],
                  axis=1)

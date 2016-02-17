@@ -9,7 +9,7 @@
   <style>
     #figure_div {
       margin: auto;
-      width: 80%;
+      width: 90%;
     }
     #figure {
       width: 100%;
@@ -21,7 +21,7 @@
 {% block content %}
   <div class="jumbotron">
     <div class="container">
-      <h2>About the data</h2>
+      <h2>Motivation</h2>
       <p> 88% of the households of Washington, DC don't own a car,
           so living near to amenities 
           such as grocery stores, metro stations, and parks
@@ -32,35 +32,56 @@
           between proximitity to amenities 
           and the cost of owning a private residence.
       </p>
+      <h2>Data Collection</h2>
       <p> Records of residential property sales since Febraury 29, 2012
       were gathered from 
       <a href="http://opendata.dc.gov/datasets/2acc75ccdd954267acecb8713b2b800a_28">DC's open data reposity</a>.
-      Each property sale location was uniquely indentified by latitude
-      and longitude, so each of these locations could be queried using
-      the <a href="google.com">Google Places API</a>. 
+      Each of the 15,000 property sale records contained the latitude
+      and longitude coordinates, and these were used to perform nearby
+      searches using
+      the <a href="google.com">Google Places API</a>. The names, ratings,
+      and prices of all amenities (bars, bakeries, cafes, grocery stores, 
+      movie theaters, parks, pharmacies, restaurants, schools, and spas)
+      within 1 km of each sale location were recorded. Histograms of these
+      results for each amenity type are shown below.
       </p>
-    </div>
+    </div> <!-- container--> 
+    <div id="figure_div">
+      <table id="figure_table">
+      {% for image in img_list %}
+        <tr>
+          <td valign="top">
+            <img id="figure" 
+              src="{{ url_for('static',filename=image[0]) }}" 
+              alt=image[0] >
+          </td>
+          <td valign="top">
+            <img id="figure" 
+              src="{{ url_for('static',filename=image[1]) }}" 
+              alt=image[1] >
+          </td>
+          <td valign="top">
+            <img id="figure" 
+              src="{{ url_for('static',filename=image[2]) }}" 
+              alt=image[2] >
+          </td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div> <!-- id="figure_div"-->
+    <div class="container">
+      <h2>Modeling</h2>
+      <p> The hypothesis going into this problem was that the number of
+      nearby amenities could be used as a predictor of property sale
+      price. It was found that modeling using amenity proximities as
+      features worked about as well as using the coordinates alone. 
+      The accuracies of both models was improved by about 5 base points
+      by considering land area as a feature (a resonable proxy for 
+      floor area which was not available in the dataset).</p>
+    </div> <!-- container--> 
+      
   </div>
+  <hr>  
 
-<div id="figure_div">
-  <table id="figure_table">
-  {% for image in img_list %}
-    <tr>
-      <td valign="top">
-        <img id="figure" src="{{ url_for('static',filename=image[0]) }}" 
-          alt=image[0] >
-      </td>
-      <td valign="top">
-        <img id="figure" src="{{ url_for('static',filename=image[1]) }}" 
-          alt=image[1] >
-      </td>
-      <td valign="top">
-        <img id="figure" src="{{ url_for('static',filename=image[2]) }}" 
-          alt=image[2] >
-      </td>
-    </tr>
-  {% endfor %}
-  </table>
-</div> <!-- container--> 
 
 {% endblock content %}
