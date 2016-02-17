@@ -4,43 +4,58 @@ Post-doctoral appointment at the National Institute of Standards and
 Technology. For my Capstone project, I've developed a web application 
 called AmeniDC.
 
-AmeniDC allows users to quickly visualize relationships between
-the sale price of a residential home and the amenities that are near
-to it, using an interactive map divided up by zipcode. 
+AmeniDC allows prospective home buyers in the District of Columbia 
+to quickly visualize relationships between
+the sale price of a residential home 
+and the number of amenities that are near to it. 
+The app's homepage displays an interactive map of Washington which 
+has been partitioned by zipcode. 
+By clicking the buttons on the right, users can toggle through chloropeth
+maps of typical sale price in a zipcode as well as the typical number 
+of Grocery Stores, Restaurants, 
+and Metro Stations within 1 km of a home in that zipcode.
+Clicking on any particular zipcode displays a pop-up
+window containing a more-detailed breakdown of the surrounding amenities
+for any particular zipcode. 
+
+Once the user has honed in on a particular area, he or she can 
+enter a DC street address into the box below, which generates a 
+bar graph depicting an estimated sale price for the location as well
+as the count of amenities that lie within 1 km of that location.
+
+This prediction was made possible  
+by first querying DC's open data repository 
+for all residential property sales from the last four years.
+
+Although this data is rich with features such as tax assessments 
+and value added by lot improvements, this information is 
+typically not known to a 
+prospective home buyer in the early stages of his or her search.
+
+However, 
+the working hypothesis going into this problem was that the number of
+nearby amenities 
+could be used as a predictor of property sale price given that the
+commuting is relatively difficult in the District.
+
+Thus, the distribution of nearby amenities was found  by using the Google 
+Places API to query up to 650 amenities within one kilometer of each 
+sale location.
+
+After constructing K-neighbors and random forest regression models,
+it was determined using either location coordinates or nearby amenity 
+distributions as features resulted in approximately the same mean-squared
+error.
+
+If you'd like to learn more I encourage you to head over to asldkf;asl.com
+for a more detailed breakdown of the analysis.
+
+Thank you for your attention.
 
 
-By querying the OpenData.DC API,
-I've extracted property data containing the location and price of every 
-property sale in the District over the last six years. 
-
-I've then  searched within a 1000 meter radius 
-for nearby amenities using the Google Places API. 
 
 
-Although the floor area of a home is a good predictor, this data was
-not available to me. Landarea is likely a decent proxy for floor area,
-but this is generally not known by a prospective buyer.
+The accuracy of each model was improved by about 5 base points
+by considering land area as an additional feature (a resonable proxy for 
+floor area which was not available in the dataset).
 
-Using this data alone, I can construct
-useful map layers which give summaries 
-of the number and type of amenities within a particular neighborhood, 
-but utlimately, 
-the goal is to find hidden 
-gems within the District, that is, 
-areas with a high number of amenities relative to the price. 
-
-To do this, I'vee constructed a regression model 
-which attempts to explain cost in terms of a number of factors 
-such as location and lot size. 
-For location, I fit the data using the KNearestNeighbors regressor, 
-whereas I expect lotsize to vary linearly with the cost. 
-The next step is to constructe linear regressor on the residuals 
-to capture the relationship
-between number and type of amenit
-providing prospective home buyers the tools to determine the 
-home location that best suits their needs.ies.
-
-88% of the household of Washington, DC don't own a car,
-so living near to amenities 
-such as grocery stores, metro stations, and parks
-is at a premium within the District.
