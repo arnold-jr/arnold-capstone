@@ -17,12 +17,11 @@ from geocode_query import get_zip_and_lat_lng
 from place_query import get_local_amenities
 from bokeh_maker import make_plots
 
-# Read in all API keys
-with open("../secrets/amenidc_secrets.json.nogit") as fh: 
-  secrets = json.loads(fh.read())
-  google_api_key = secrets['google_server_api_key']
-  google_geocode_api_key = secrets['google_geocode_api_key']
-  cartodb_api_key = secrets['cartodb_api_key']
+# Read in all API keys from environment
+google_api_key = os.environ['GOOGLE_SERVER_API_KEY']
+google_geocode_api_key = os.environ['GOOGLE_GEOCODE_API_KEY']
+cartodb_api_key = os.environ['CARTODB_API_KEY']
+
 
 # Read in app configuration using environment variables
 app = Flask(__name__)
