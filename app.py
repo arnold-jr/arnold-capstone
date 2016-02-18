@@ -37,7 +37,11 @@ def data_reader():
   df['zipcode'] = df['zipcode'].astype(str)
   df.set_index('zipcode',inplace=True)
   app.vars['df'] = df 
-data_reader()
+try:
+  data_reader()
+except:
+  print "Database read unsuccessfully"
+  pass
 
 # Read in pickled sklearn model and store as app member 
 def model_reader():
@@ -45,7 +49,11 @@ def model_reader():
     model = pickle.load(p_input)
   app.vars['model'] = model
   #print model.get_params()
-model_reader()
+try:
+  model_reader()
+except:
+  print "Model read unsuccessfully"
+  pass
 
 
 def prep_plot_df(q_address):
