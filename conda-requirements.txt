@@ -2,12 +2,19 @@
 # $ conda create --name <env> --file <this file>
 # platform: osx-64
 backports_abc=0.4=py27_0
-bokeh=0.11.0=py27_1
+bokeh=0.11.1=py27_0
+dill=0.2.4=py27_0
+flask=0.10.1=py27_1
+futures=3.0.3=py27_0
+gunicorn=19.1.0=py27_0
 itsdangerous=0.24=py27_0
 jinja2=2.8=py27_0
 markupsafe=0.23=py27_0
+mkl=11.3.1=0
 nose=1.3.7=py27_0
-openssl=1.0.2d=0
+numpy=1.10.4=py27_0
+openssl=1.0.2f=0
+pandas=0.16.2=np19py27_0
 pastedeploy=1.5.2=py27_1
 pip=8.0.2=py27_0
 python=2.7.11=0
@@ -16,14 +23,17 @@ pytz=2015.7=py27_0
 pyyaml=3.11=py27_1
 readline=6.2=2
 requests=2.9.1=py27_0
+scikit-learn=0.16.1=np19py27_0
+scipy=0.17.0=np19py27_0
 setuptools=19.6.2=py27_0
-simplejson=3.8.1=py27_0
+simplejson=3.8.2=py27_0
 singledispatch=3.4.0.3=py27_0
 six=1.10.0=py27_0
+sqlite=3.9.2=0
 ssl_match_hostname=3.4.0.2=py27_0
 tk=8.5.18=0
 tornado=4.3=py27_0
-werkzeug=0.11.3=py27_0
+werkzeug=0.11.4=py27_0
 wheel=0.29.0=py27_0
 wtforms=2.0.2=py27_0
 yaml=0.1.6=0
