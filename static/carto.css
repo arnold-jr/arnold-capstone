@@ -1,0 +1,28 @@
+#map {
+  margin-left: auto; 
+  margin-right:auto;
+  height: 70vh; 
+  width: 70vw; 
+}
+#layer_selector {
+  padding: 5px;
+}
+#layer_selector ul {
+  padding: 0; margin: 0;
+  list-style-type: none;
+}
+#layer_selector li {
+  border-bottom: 1px solid #999;
+  padding: 15px 30px;
+  font-family: "Helvetica", Arial;
+  font-size: 13px;
+  color: #444;
+  cursor: auto;
+}
+#layer_selector li:hover {
+  background-color: #F0F0F0;
+  cursor: pointer;
+}
+#layer_selector li.selected {
+  background-color: #EEE;
+}

@@ -4,60 +4,47 @@
 {% block head %}
   {{ super() }}
 
-  <!-- Bokeh resources -->
-  {{ js_resources|indent(4)|safe }}
-  {{ css_resources|indent(4)|safe }}
-  {{ bokeh_script|indent(4)|safe }}
   
-  <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script-->
+  <!-- CartoDB resources -->
+  <link href="{{ url_for('static', filename='carto.css') }}" 
+    rel="stylesheet" type="text/css">
+  <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js">
+  </script>
+
+  
+  <!-- nvd3 resources -->
+  <link href="{{ url_for('static', filename='nv.d3.css') }}" 
+    rel="stylesheet" type="text/css">
+  <script src="{{ url_for('static', filename='d3.min.js') }}" 
+    charset="utf-8"></script>
+  <script src="{{ url_for('static', filename='nv.d3.js') }}"></script>
+  <script src="{{ url_for('static', filename='stream_layers.js') }}">
+    </script>
   
   <style>
-    #bokeh_plot {
+    #bar_plot {
       margin: auto;
       width: 80%;
-      visibility: {{ bp_visibility }} ; 
+      height: 80vh;
     }
     #address {
       width: 50%;
     }
-  </style>
-  
-  <style>
-    #map {
-      margin-left: auto; 
-      margin-right:auto;
-      height: 70vh; 
-      width: 70vw; 
+    svg {
+        display: block;
     }
-    #layer_selector {
-      padding: 5px;
-    }
-    #layer_selector ul {
-      padding: 0; margin: 0;
-      list-style-type: none;
-    }
-    #layer_selector li {
-      border-bottom: 1px solid #999;
-      padding: 15px 30px;
-      font-family: "Helvetica", Arial;
-      font-size: 13px;
-      color: #444;
-      cursor: auto;
-    }
-    #layer_selector li:hover {
-      background-color: #F0F0F0;
-      cursor: pointer;
-    }
-    #layer_selector li.selected {
-      background-color: #EEE;
+    #chart1, svg {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        width: 100%;
     }
   </style>
-    
-  <!-- include cartodb.js library -->
-  <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js">
-  </script>
+
+
 
 {% endblock head %}
+
 {% block content %}
   <!-- Main jumbotron for a primary marketing message or call to action -->
   <div class="jumbotron">
@@ -80,7 +67,6 @@
         <td id="layer_selector" class="cartodb-infobox">
           <ul>
             {% for db_name, disp_name in map_layers %}
-            {# if db_name=="0" <li data="all" class="selected">All countries</li> #}
               <li data="{{ db_name }}">{{ disp_name }}</li>
             {% endfor %}
           </ul>
@@ -93,7 +79,34 @@
       {% include "cartodb_amenidc.js" %} 
     </script>
   </div> 
-  
+
+
+  <script type="text/javascript">
+    $(function() {
+      var submit_form = function(e) {
+        $.getJSON($SCRIPT_ROOT + '/_add_numbers', {
+          a: $('input[name="a"]').val(),
+          b: $('input[name="b"]').val()
+        }, function(data) {
+          $('#result').text(data.result);
+          $('input[name=a]').focus().select();
+        });
+        return false;
+      };
+      $('a#calculate').bind('click', submit_form);
+      $('input[type=text]').bind('keydown', function(e) {
+        if (e.keyCode == 13) {
+          submit_form(e);
+        }
+      });
+      $('input[name=a]').focus();
+    });
+  </script>
+  <h1>jQuery Example</h1>
+  <p><input type="text" size="5" name="a"> +
+     <input type="text" size="5" name="b"> =
+     <span id="result">?</span>
+  <p><a href=# id="calculate">calculate server</a>
   
   <div class="container" style="margin:auto; margin-top:5%; width:90%">
     <!-- Put the address query form here -->
@@ -108,10 +121,14 @@
       </dl>
     </form>    
     
-    <!-- Put the Bokeh plots here -->
-    <div id="bokeh_plot" >
-      <!--h2 style="text-align: center;">{{ amenity_x_disp }}</h2-->
-        {{ bokeh_div|indent(4)|safe }}
+    <!-- Put the bar plots here -->
+    <div id="bar_plot"> 
+      <div id="chart1" class='with-3d-shadow with-transitions'>
+          <svg></svg>
+      </div>
+      <script type="text/javascript"  
+        src="{{ url_for('static',filename='multiBar.js') }}">
+      </script>
     </div>
   </div>
   

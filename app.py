@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, g
+from flask import Flask, render_template, request, redirect, g, jsonify
 import os
 
 from wtforms import Form, TextField, validators
@@ -9,13 +9,9 @@ import pandas as pd
 
 import dill as pickle
 
-#import sqlite3
-from bokeh.resources import CDN 
-from bokeh.util.string import encode_utf8
 
 from geocode_query import get_zip_and_lat_lng
 from place_query import get_local_amenities
-from bokeh_maker import make_plots
 
 # Read in all API keys from environment
 google_api_key = os.environ['GOOGLE_SERVER_API_KEY']
@@ -60,7 +56,8 @@ def prep_plot_df(q_address):
   '''Prepare the data to plot by a) quering the mean_by_zipcode database
   and b) querying nearby places using Google places API'''
   # geocode the address and convert to lat_lng 
-  lat_lng, zipcode, address = get_zip_and_lat_lng(google_geocode_api_key,q_address)
+  lat_lng, zipcode, address = get_zip_and_lat_lng(
+      google_geocode_api_key,q_address)
   print lat_lng, zipcode, address
 
   zip_df = app.vars['df'].loc[[zipcode],:]
@@ -76,10 +73,6 @@ def prep_plot_df(q_address):
   return address, zipcode
 
 
-@app.route('/')
-def main():
-  return redirect('/index')
-
 def request_cartodb():
   with requests.Session() as s:
     r = s.get(cartodb_api_key)
@@ -89,8 +82,14 @@ class AddressQueryForm(Form):
   address = TextField('DC Street Address', 
       [validators.Length(min=6, max=512)])
 
+@app.route('/_add_numbers')
+def add_numbers():
+  a = request.args.get('a', 0, type=int)
+  b = request.args.get('b', 0, type=int)
+  return jsonify(result=a + b)
 
-@app.route('/index', methods=['POST', 'GET'])
+
+@app.route('/', methods=['POST', 'GET'])
 def index():
   cartodb_map = request_cartodb()
   map_layers = [
@@ -102,35 +101,23 @@ def index():
 
   form = AddressQueryForm(request.form) 
 
-  js_resources = CDN.render_js()
-  css_resources = CDN.render_css()
-
   amenity_x_type, amenity_x_disp = 'count','Average Price Level'
 
   if request.method == 'POST' and form.validate():
     q_address = form.address.data 
     f_address,zipcode = prep_plot_df(q_address) 
-    
-    flag, bokeh_script, bokeh_div = make_plots(app.vars['this_df'],
-        q_address, zipcode, amenity_x_type)
-    bp_visibility="visible"
   elif request.method == 'GET':
-    flag, bokeh_script, bokeh_div = (False, '', '')
-    bp_visibility="hidden"
-  
+    pass
+
   html =  render_template(
       'index.html',
       cartodb_map=cartodb_map,
       form=form,
-      bp_visibility=bp_visibility,
       map_layers=map_layers,
       amenity_x_disp=amenity_x_disp,
-      js_resources=js_resources,
-      css_resources=css_resources,
-      bokeh_script=bokeh_script,
-      bokeh_div=bokeh_div,
+      bar_url = "http://www.w3schools.com"
       )
-  return encode_utf8(html)
+  return html
 
 
 @app.route('/about')
