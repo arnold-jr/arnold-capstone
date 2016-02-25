@@ -123,11 +123,12 @@
                   .barColor(d3.scale.category20().range())
                   .duration(250)
                   .margin({left: 150})
-                  .stacked(true);
+                  .stacked(false)
+                  .showControls(false);
 
               chart.yAxis.tickFormat(d3.format(',.2f'));
 
-              chart.yAxis.axisLabel('Count or Price / $100,000');
+              chart.yAxis.axisLabel('Count or Price / $10,000');
               //chart.xAxis.axisLabel('Amenity Type').axisLabelDistance(20);
 
               d3.select('#chart1 svg')

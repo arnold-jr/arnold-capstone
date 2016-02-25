@@ -166,7 +166,8 @@
             .barColor(d3.scale.category20().range())
             .duration(250)
             .margin({left: 100})
-            .stacked(true);
+            .stacked(false)
+            .showControls(false);
 
         chart.yAxis.tickFormat(d3.format(',.2f'));
 

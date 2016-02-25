@@ -5,6 +5,7 @@ from wtforms import Form, TextField, validators
 
 import requests
 import simplejson as json
+import numpy as np
 import pandas as pd
 
 import dill as pickle
@@ -27,12 +28,17 @@ print os.environ['AMENIDC_SETTINGS']
 
 
 # Read in dataframe and store as app member 
-app.vars = {'df':None, 'this_df':None, 'model':None}
+app.vars = {'df':None, 'df_zip':None, 'this_df':None, 'model':None}
 def data_reader():
   df = pd.read_csv('./data/mean_by_zip_04.csv')
   df['zipcode'] = df['zipcode'].astype(str)
   df.set_index('zipcode',inplace=True)
-  app.vars['df'] = df 
+  app.vars['df_zip'] = df
+
+  df = pd.read_csv('./data/df_features.csv')
+  app.vars['df'] = df
+  
+
 try:
   data_reader()
 except:
@@ -44,7 +50,7 @@ def model_reader():
   with open('./data/p_combo_model_rf.dpkl', 'rb') as p_input:
     model = pickle.load(p_input)
   app.vars['model'] = model
-  #print model.get_params()
+
 try:
   model_reader()
 except:
@@ -59,19 +65,26 @@ def prep_plot_df(q_address):
   lat_lng, zipcode, address = get_zip_and_lat_lng(
       google_geocode_api_key,q_address)
 
+  df_zip = app.vars['df_zip']
   df = app.vars['df']
-  if True or zipcode not in df.index:
-    this_df = df.mean().to_frame("Mean").transpose()
+  if False or zipcode not in df_zip.index:
+    this_df = df_zip.mean().to_frame("Mean").transpose()
   else:
-    zip_df = df.loc[[zipcode],:]
-    #query_df = zip_df
-    query_df = get_local_amenities(google_api_key,lat_lng) 
+    # Model doesn't want to cooperate on heroku
+    #query_df = get_local_amenities(google_api_key,lat_lng) 
+    #query_df.index = [address[:10]]
+    #query_df.loc[address[:10],'SALEPRICE'] = app.vars['model'].predict(
+    #    query_df) 
 
-    # predict this price
-    #query_df.loc['summary','SALEPRICE'] = 1000000.0
-    query_df.loc[address[:10],'SALEPRICE'] = app.vars['model'].predict(query_df) 
+    # Use nearest neighbor as prediction
+    idx_min = (np.square(df['longitude'].astype(np.float64)+77)
+        +np.square(df['latitude'].astype(np.float64)+33.8)).idxmin()
+    # Ensure that we only get one row of the dataframe
+    query_df = df.loc[[idx_min],:].mean().to_frame(address[:10]).transpose()
+    
     # combine zip and query dataframes
-    this_df = zip_df.append(query_df)
+    zip_df = df_zip.loc[[zipcode],:]
+    this_df = query_df.append(zip_df)
   
   app.vars['this_df'] = this_df.fillna(0)
   return address, zipcode
@@ -95,7 +108,7 @@ def run_address():
         [c for c in df.columns.tolist() if ("_count" in c 
       and "count_" not in c)]]
 
-    df['SALEPRICE'] = df['SALEPRICE']/100000.0
+    df['SALEPRICE'] = df['SALEPRICE']/10000.0
 
     chart_data_json = []
     for i,row in df.iterrows():  
@@ -103,7 +116,6 @@ def run_address():
           in row.iteritems()]
       chart_data_json.append({'key': i, 'values': val_list}) 
 
-    print chart_data_json
     return jsonify(result=address,
         result_df=chart_data_json)
   
