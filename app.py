@@ -60,7 +60,7 @@ def prep_plot_df(q_address):
       google_geocode_api_key,q_address)
 
   df = app.vars['df']
-  if zipcode not in df.index:
+  if True or zipcode not in df.index:
     this_df = df.mean().to_frame("Mean").transpose()
   else:
     zip_df = df.loc[[zipcode],:]
