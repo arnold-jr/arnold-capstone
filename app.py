@@ -58,20 +58,18 @@ def prep_plot_df(q_address):
   # geocode the address and convert to lat_lng 
   lat_lng, zipcode, address = get_zip_and_lat_lng(
       google_geocode_api_key,q_address)
-  print lat_lng, zipcode, address
 
-  address
-  if True or zipcode not in df.index:
-    this_df = app.vars['df'].mean().to_frame("Mean").transpose()
+  df = app.vars['df']
+  if zipcode not in df.index:
+    this_df = df.mean().to_frame("Mean").transpose()
   else:
-    zip_df = app.vars['df'].loc[[zipcode],:]
-    #query_df = get_local_amenities(google_api_key,lat_lng) 
-    query_df = zip_df
+    zip_df = df.loc[[zipcode],:]
+    #query_df = zip_df
+    query_df = get_local_amenities(google_api_key,lat_lng) 
 
     # predict this price
     #query_df.loc['summary','SALEPRICE'] = 1000000.0
-    query_df.loc['summary','SALEPRICE'] = app.vars['model'].predict(query_df) 
-    
+    query_df.loc[address[:10],'SALEPRICE'] = app.vars['model'].predict(query_df) 
     # combine zip and query dataframes
     this_df = zip_df.append(query_df)
   
@@ -89,23 +87,29 @@ def request_cartodb():
 def run_address():
   q_address = request.args.get('a', 'No Address Specified', type=str)
 
-  address, zipcode = prep_plot_df('1129 Maryland Ave') 
+  address, zipcode = prep_plot_df(q_address) 
 
-  df = app.vars['this_df']
-  df = df.loc[:,[c for c in df.columns.tolist() if "_count" in c 
-    and "count_" not in c]]
+  if zipcode != '-42':
+    df = app.vars['this_df']
+    df = df.loc[:,['SALEPRICE']+
+        [c for c in df.columns.tolist() if ("_count" in c 
+      and "count_" not in c)]]
 
-  chart_data_json = []
-  for i,row in df.iterrows():  
-    val_list = [{'label':k, 'value':v} for k,v 
-        in row.to_dict().iteritems()]
-    chart_data_json.append({'key': i, 'values': val_list}) 
+    df['SALEPRICE'] = df['SALEPRICE']/100000.0
+
+    chart_data_json = []
+    for i,row in df.iterrows():  
+      val_list = [{'label':k, 'value':v} for k,v 
+          in row.iteritems()]
+      chart_data_json.append({'key': i, 'values': val_list}) 
+
+    print chart_data_json
+    return jsonify(result=address,
+        result_df=chart_data_json)
   
-  #chart_data_json = [ { "key": "Zipcode", "values": [ { "label" : "Fish" , "value" : -1.8746444827653 } , { "label" : "Group B" , "value" : -8.0961543492239 } , { "label" : "Group C" , "value" : -0.57072943117674 } , { "label" : "Group D" , "value" : -2.4174010336624 } , { "label" : "Group E" , "value" : -0.72009071426284 } , { "label" : "Group F" , "value" : -2.77154485523777 } , { "label" : "Group G" , "value" : -9.90152097798131 } , { "label" : "Group H" , "value" : 14.91445417330854 } , { "label" : "Group I" , "value" : -3.055746319141851 } ] }, { "key": "Zipcode", "values": [ { "label" : "Fish" , "value" : -1.8746444827653 } , { "label" : "Group B" , "value" : -8.0961543492239 } , { "label" : "Group C" , "value" : -0.57072943117674 } , { "label" : "Group D" , "value" : -2.4174010336624 } , { "label" : "Group E" , "value" : -0.72009071426284 } , { "label" : "Group F" , "value" : -2.77154485523777 } , { "label" : "Group G" , "value" : -9.90152097798131 } , { "label" : "Group H" , "value" : 14.91445417330854 } , { "label" : "Group I" , "value" : -3.055746319141851 } ] }, ]
-
-  print chart_data_json
-  return jsonify(result=address,
-      result_df=chart_data_json)
+  else:
+    return jsonify(result=address,
+        result_df=[])
 
 
 @app.route('/', methods=['POST', 'GET'])

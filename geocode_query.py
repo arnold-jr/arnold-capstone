@@ -25,8 +25,8 @@ def get_zip_and_lat_lng(google_api_key, q_address):
   else:
     print json.dumps(r.json(), indent=4)
     out_address = "Invalid Address Specified"
-    zipcode = "20004"
-    lat_lng = "38.896999,-77.023589"
+    zipcode = "-42"
+    lat_lng = "-42"
     
   return lat_lng, zipcode, out_address 
 
