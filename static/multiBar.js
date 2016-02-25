@@ -1,6 +1,6 @@
     var long_short_data = [
         {
-            key: 'Series1',
+            key: "Zipcode",
             values: [
                 {
                     "label" : "Group A" ,
@@ -40,90 +40,9 @@
                 }
             ]
         },
-        {
-            key: 'Series2',
-            values: [
-                {
-                    "label" : "Group A" ,
-                    "value" : 25.307646510375
-                } ,
-                {
-                    "label" : "Group B" ,
-                    "value" : 16.756779544553
-                } ,
-                {
-                    "label" : "Group C" ,
-                    "value" : 18.451534877007
-                } ,
-                {
-                    "label" : "Group D" ,
-                    "value" : 8.6142352811805
-                } ,
-                {
-                    "label" : "Group E" ,
-                    "value" : 7.8082472075876
-                } ,
-                {
-                    "label" : "Group F" ,
-                    "value" : 5.259101026956
-                } ,
-                {
-                    "label" : "Group G" ,
-                    "value" : 7.0947953487127
-                } ,
-                {
-                    "label" : "Group H" ,
-                    "value" : 8
-                } ,
-                {
-                    "label" : "Group I" ,
-                    "value" : 21
-                }
-            ]
-        },
-        {
-            key: 'Series3',
-            values: [
-                {
-                    "label" : "Group A" ,
-                    "value" : -14.307646510375
-                } ,
-                {
-                    "label" : "Group B" ,
-                    "value" : 16.756779544553
-                } ,
-                {
-                    "label" : "Group C" ,
-                    "value" : -18.451534877007
-                } ,
-                {
-                    "label" : "Group D" ,
-                    "value" : 8.6142352811805
-                } ,
-                {
-                    "label" : "Group E" ,
-                    "value" : -7.8082472075876
-                } ,
-                {
-                    "label" : "Group F" ,
-                    "value" : 15.259101026956
-                } ,
-                {
-                    "label" : "Group G" ,
-                    "value" : -0.30947953487127
-                } ,
-                {
-                    "label" : "Group H" ,
-                    "value" : 0
-                } ,
-                {
-                    "label" : "Group I" ,
-                    "value" : 0
-                }
-            ]
-        }
     ];
 
+    var llong_short_data = $("#result").data
 
     var chart;
     nv.addGraph(function() {
@@ -138,8 +57,8 @@
 
         chart.yAxis.tickFormat(d3.format(',.2f'));
 
-        chart.yAxis.axisLabel('Y Axis');
-        chart.xAxis.axisLabel('X Axis').axisLabelDistance(20);
+        chart.yAxis.axisLabel('Count or Price / $100,000');
+        chart.xAxis.axisLabel('Amenity Type').axisLabelDistance(20);
 
         d3.select('#chart1 svg')
             .datum(long_short_data)

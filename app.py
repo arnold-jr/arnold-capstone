@@ -60,14 +60,20 @@ def prep_plot_df(q_address):
       google_geocode_api_key,q_address)
   print lat_lng, zipcode, address
 
-  zip_df = app.vars['df'].loc[[zipcode],:]
-  query_df = get_local_amenities(google_api_key,lat_lng) 
+  address
+  if True or zipcode not in df.index:
+    this_df = app.vars['df'].mean().to_frame("Mean").transpose()
+  else:
+    zip_df = app.vars['df'].loc[[zipcode],:]
+    #query_df = get_local_amenities(google_api_key,lat_lng) 
+    query_df = zip_df
 
-  # predict this price
-  #query_df.loc['summary','SALEPRICE'] = 1000000.0
-  query_df.loc['summary','SALEPRICE'] = app.vars['model'].predict(query_df) 
-  
-  this_df = zip_df.append(query_df)
+    # predict this price
+    #query_df.loc['summary','SALEPRICE'] = 1000000.0
+    query_df.loc['summary','SALEPRICE'] = app.vars['model'].predict(query_df) 
+    
+    # combine zip and query dataframes
+    this_df = zip_df.append(query_df)
   
   app.vars['this_df'] = this_df.fillna(0)
   return address, zipcode
@@ -78,15 +84,28 @@ def request_cartodb():
     r = s.get(cartodb_api_key)
   return r.json() 
 
-class AddressQueryForm(Form):
-  address = TextField('DC Street Address', 
-      [validators.Length(min=6, max=512)])
 
-@app.route('/_add_numbers')
-def add_numbers():
-  a = request.args.get('a', 0, type=int)
-  b = request.args.get('b', 0, type=int)
-  return jsonify(result=a + b)
+@app.route('/_run_address')
+def run_address():
+  q_address = request.args.get('a', 'No Address Specified', type=str)
+
+  address, zipcode = prep_plot_df('1129 Maryland Ave') 
+
+  df = app.vars['this_df']
+  df = df.loc[:,[c for c in df.columns.tolist() if "_count" in c 
+    and "count_" not in c]]
+
+  chart_data_json = []
+  for i,row in df.iterrows():  
+    val_list = [{'label':k, 'value':v} for k,v 
+        in row.to_dict().iteritems()]
+    chart_data_json.append({'key': i, 'values': val_list}) 
+  
+  #chart_data_json = [ { "key": "Zipcode", "values": [ { "label" : "Fish" , "value" : -1.8746444827653 } , { "label" : "Group B" , "value" : -8.0961543492239 } , { "label" : "Group C" , "value" : -0.57072943117674 } , { "label" : "Group D" , "value" : -2.4174010336624 } , { "label" : "Group E" , "value" : -0.72009071426284 } , { "label" : "Group F" , "value" : -2.77154485523777 } , { "label" : "Group G" , "value" : -9.90152097798131 } , { "label" : "Group H" , "value" : 14.91445417330854 } , { "label" : "Group I" , "value" : -3.055746319141851 } ] }, { "key": "Zipcode", "values": [ { "label" : "Fish" , "value" : -1.8746444827653 } , { "label" : "Group B" , "value" : -8.0961543492239 } , { "label" : "Group C" , "value" : -0.57072943117674 } , { "label" : "Group D" , "value" : -2.4174010336624 } , { "label" : "Group E" , "value" : -0.72009071426284 } , { "label" : "Group F" , "value" : -2.77154485523777 } , { "label" : "Group G" , "value" : -9.90152097798131 } , { "label" : "Group H" , "value" : 14.91445417330854 } , { "label" : "Group I" , "value" : -3.055746319141851 } ] }, ]
+
+  print chart_data_json
+  return jsonify(result=address,
+      result_df=chart_data_json)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -99,23 +118,11 @@ def index():
       ("3","Metro Stations"),
       ]
 
-  form = AddressQueryForm(request.form) 
-
-  amenity_x_type, amenity_x_disp = 'count','Average Price Level'
-
-  if request.method == 'POST' and form.validate():
-    q_address = form.address.data 
-    f_address,zipcode = prep_plot_df(q_address) 
-  elif request.method == 'GET':
-    pass
 
   html =  render_template(
       'index.html',
       cartodb_map=cartodb_map,
-      form=form,
       map_layers=map_layers,
-      amenity_x_disp=amenity_x_disp,
-      bar_url = "http://www.w3schools.com"
       )
   return html
 

@@ -41,8 +41,7 @@
     }
   </style>
 
-
-
+  
 {% endblock head %}
 
 {% block content %}
@@ -81,54 +80,89 @@
   </div> 
 
 
-  <script type="text/javascript">
-    $(function() {
-      var submit_form = function(e) {
-        $.getJSON($SCRIPT_ROOT + '/_add_numbers', {
-          a: $('input[name="a"]').val(),
-          b: $('input[name="b"]').val()
-        }, function(data) {
-          $('#result').text(data.result);
-          $('input[name=a]').focus().select();
-        });
-        return false;
-      };
-      $('a#calculate').bind('click', submit_form);
-      $('input[type=text]').bind('keydown', function(e) {
-        if (e.keyCode == 13) {
-          submit_form(e);
-        }
-      });
-      $('input[name=a]').focus();
-    });
-  </script>
-  <h1>jQuery Example</h1>
-  <p><input type="text" size="5" name="a"> +
-     <input type="text" size="5" name="b"> =
-     <span id="result">?</span>
-  <p><a href=# id="calculate">calculate server</a>
   
   <div class="container" style="margin:auto; margin-top:5%; width:90%">
     <!-- Put the address query form here -->
     <h5> Enter a DC street address below to see a predicted sale price
     and how the location stacks up against other properties in its
     zipcode. </h5>
-    {% from "_formhelpers.html" import render_field %}
-    <form method=post action="/index" role="form">
-      <dl>
-        {{ render_field(form.address) }}
-        <i>(e.g., 1600 Pennsylvania Ave)</i>
-      </dl>
-    </form>    
-    
+    <script type="text/javascript">
+      $(function() {
+        var submit_form = function(e) {
+          $.getJSON($SCRIPT_ROOT + '/_run_address', {
+            a: $('input[name="a"]').val()
+          }, function(data) {
+            $('input[name=a]').focus().select();
+            $('#get_address_result').text(data.result);
+            someFun(data.result_df)
+            histWrapper(data.result_df)
+          });
+          return false;
+        };
+        $('a#calculate').bind('click', submit_form);
+        $('input[type=text]').bind('keydown', function(e) {
+          if (e.keyCode == 13) {
+            submit_form(e);
+          }
+        });
+        $('input[name=a]').focus();
+      
+        var someFun = function(new_data) {
+          $('#foo').text(new_data.key);
+        };
+
+  
+        var histWrapper = function(new_data) {
+          var chart;
+          d3.selectAll("svg > *").remove()
+          nv.addGraph(function() {
+              chart = nv.models.multiBarHorizontalChart()
+                  .x(function(d) { return d.label })
+                  .y(function(d) { return d.value })
+                  .yErr(function(d) { return [-Math.abs(d.value * Math.random() * 0.3), Math.abs(d.value * Math.random() * 0.3)] })
+                  .barColor(d3.scale.category20().range())
+                  .duration(250)
+                  .margin({left: 150})
+                  .stacked(true);
+
+              chart.yAxis.tickFormat(d3.format(',.2f'));
+
+              chart.yAxis.axisLabel('Count or Price / $100,000');
+              //chart.xAxis.axisLabel('Amenity Type').axisLabelDistance(20);
+
+              d3.select('#chart1 svg')
+                  .datum(new_data)
+                  .call(chart);
+
+              nv.utils.windowResize(chart.update);
+
+              chart.dispatch.on('stateChange', function(e) { nv.log('New State:', JSON.stringify(e)); });
+              chart.state.dispatch.on('change', function(state){
+                  nv.log('state', JSON.stringify(state));
+              });
+              return chart;
+          });
+
+        };
+        histWrapper(long_short_data)
+      });
+
+
+    </script>
+    <p><input type="text" size="70" name="a">
+       <i>(e.g., 1600 Pennsylvania Ave)</i>
+    <p><a href=# id="calculate">Get Results</a>
+  
+    <h1 id="get_address_result"></h1>
+
     <!-- Put the bar plots here -->
     <div id="bar_plot"> 
       <div id="chart1" class='with-3d-shadow with-transitions'>
           <svg></svg>
       </div>
-      <script type="text/javascript"  
+      <!--script type="text/javascript"  
         src="{{ url_for('static',filename='multiBar.js') }}">
-      </script>
+      </script-->
     </div>
   </div>
   
