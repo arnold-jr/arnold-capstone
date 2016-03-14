@@ -1,18 +1,17 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect, g, jsonify
 import os
-
 from wtforms import Form, TextField, validators
-
 import requests
 import simplejson as json
 import numpy as np
 import pandas as pd
-
 import dill as pickle
-
 
 from geocode_query import get_zip_and_lat_lng
 from place_query import get_local_amenities
+
+
 
 # Read in all API keys from environment
 google_api_key = os.environ['GOOGLE_SERVER_API_KEY']
@@ -26,21 +25,28 @@ app.config.from_object('amenidc_settings.Config')
 app.config.from_object(os.environ['AMENIDC_SETTINGS'])
 print os.environ['AMENIDC_SETTINGS']
 
+# Define dict for outputting names
+
+DISPLAY_NAMES = {
+    "SALEPRICE" : "last sale price",
+    "bakery" : "bakeries",
+    "bar" : "bars",
+    "cafe" : "cafes",
+    "grocery_or_supermarket" : "grocery stores",
+    "movie_theater" : "movie theaters",
+    "park" : "parks",
+    "pharmacy" : "pharmacies",
+    "restaurant" : "restaurants",
+    "school" : "schools",
+    "spa" : "spas",
+    "subway_station" : "metro stations"
+    }
 
 # Read in dataframe and store as app member 
-app.vars = {'df':None, 'df_zip':None, 'this_df':None, 'model':None}
-def data_reader():
-  df = pd.read_csv('./data/mean_by_zip_04.csv')
-  df['zipcode'] = df['zipcode'].astype(str)
-  df.set_index('zipcode',inplace=True)
-  app.vars['df_zip'] = df
-
-  df = pd.read_csv('./data/df_features.csv')
-  app.vars['df'] = df
-  
+app.vars = {'df':None, 'this_df':None, 'model':None}
 
 try:
-  data_reader()
+  app.vars['df'] = pd.read_csv('./data/df_features.csv')
 except:
   print "Database read unsuccessfully"
   pass
@@ -64,27 +70,29 @@ def prep_plot_df(q_address):
   # geocode the address and convert to lat_lng 
   lat_lng, zipcode, address = get_zip_and_lat_lng(
       google_geocode_api_key,q_address)
+  zipcode = int(zipcode)
 
-  df_zip = app.vars['df_zip']
   df = app.vars['df']
-  if False or zipcode not in df_zip.index:
-    this_df = df_zip.mean().to_frame("Mean").transpose()
+  if zipcode not in df.zipcode.unique():
+    this_df = df.mean().to_frame("Mean").transpose()
   else:
     # Model doesn't want to cooperate on heroku
     #query_df = get_local_amenities(google_api_key,lat_lng) 
     #query_df.index = [address[:10]]
     #query_df.loc[address[:10],'SALEPRICE'] = app.vars['model'].predict(
     #    query_df) 
+    lat, lng = (float(s) for s in lat_lng.split(","))
 
     # Use nearest neighbor as prediction
-    idx_min = (np.square(df['longitude'].astype(np.float64)+77)
-        +np.square(df['latitude'].astype(np.float64)+33.8)).idxmin()
+    idx_min = (np.square(df['longitude'].astype(np.float64) - lng)
+        +np.square(df['latitude'].astype(np.float64) - lat)).idxmin()
     # Ensure that we only get one row of the dataframe
     query_df = df.loc[[idx_min],:].mean().to_frame(address[:10]).transpose()
     
     # combine zip and query dataframes
-    zip_df = df_zip.loc[[zipcode],:]
-    this_df = query_df.append(zip_df)
+    this_df = (df.groupby('zipcode').mean().loc[zipcode,:].to_frame()
+        .transpose())
+    this_df = query_df.append(this_df)
   
   app.vars['this_df'] = this_df.fillna(0)
   return address, zipcode
@@ -102,18 +110,18 @@ def run_address():
 
   address, zipcode = prep_plot_df(q_address) 
 
-  if zipcode != '-42':
+  if zipcode != -42:
     df = app.vars['this_df']
     df = df.loc[:,['SALEPRICE']+
-        [c for c in df.columns.tolist() if ("_count" in c 
-      and "count_" not in c)]]
+        [c for c in df.columns.tolist() if ("_count" in c)]]
 
     df['SALEPRICE'] = df['SALEPRICE']/10000.0
 
     chart_data_json = []
     for i,row in df.iterrows():  
-      val_list = [{'label':k, 'value':v} for k,v 
-          in row.iteritems()]
+      val_list = [
+          {'label':DISPLAY_NAMES[k.replace("_count","")], 'value':v} 
+          for k,v in row.iteritems()]
       chart_data_json.append({'key': i, 'values': val_list}) 
 
     return jsonify(result=address,
@@ -128,12 +136,11 @@ def run_address():
 def index():
   cartodb_map = request_cartodb()
   map_layers = [
-      ("0","Mean Sale Price"),
-      ("1","Groceries"),
-      ("2","Restaurants"),
-      ("3","Metro Stations"),
+      ("0","mean sale price"),
+      ("1","grocery stores"),
+      ("2","restaurants"),
+      ("3","metro stations"),
       ]
-
 
   html =  render_template(
       'index.html',

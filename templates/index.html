@@ -107,10 +107,6 @@
         });
         $('input[name=a]').focus();
       
-        var someFun = function(new_data) {
-          $('#foo').text(new_data.key);
-        };
-
   
         var histWrapper = function(new_data) {
           var chart;
@@ -119,7 +115,7 @@
               chart = nv.models.multiBarHorizontalChart()
                   .x(function(d) { return d.label })
                   .y(function(d) { return d.value })
-                  .yErr(function(d) { return [-Math.abs(d.value * Math.random() * 0.3), Math.abs(d.value * Math.random() * 0.3)] })
+                  //.yErr(function(d) { return [-Math.abs(d.value * Math.random() * 0.3), Math.abs(d.value * Math.random() * 0.3)] })
                   .barColor(d3.scale.category20().range())
                   .duration(250)
                   .margin({left: 150})
