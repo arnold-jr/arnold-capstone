@@ -3,34 +3,10 @@ import numpy as np
 import pandas as pd
 from requests import Session, Request
 from requests_futures.sessions import FuturesSession
-from collections import namedtuple
-import operator
-from itertools import izip, repeat
+from itertools import izip, repeat, chain
 import time
 
-SumBase = namedtuple('SumBase', ['count',
-  'count_rating','sum_rating','sum_rating_sq',
-  'count_price_level','sum_price_level','sum_price_level_sq'])
-
-class SumTuple(SumBase):
-  def __init__(self, count, 
-      count_rating, sum_rating, sum_rating_sq, 
-      count_price_level, sum_price_level,sum_price_level_sq):
     
-    self = SumBase(count, 
-        count_rating, sum_rating, sum_rating_sq, 
-        count_price_level, sum_price_level, sum_price_level_sq)
-    
-  def __iadd__(self, other):
-    if not isinstance(other,SumTuple):
-      raise TypeError
-    return SumTuple(*(t[0]+t[1] for t in izip(self,other)))
-    
-
-# Define amenity types of interest
-AMENITY_TYPES = ['bakery','bar','cafe','grocery_or_supermarket',
-      'movie_theater','park','pharmacy','restaurant','school',
-      'spa','subway_station']
 
 def google_places_json_parser(google_json):
   """ Parses Google Places API JSON result according to predefined template
@@ -56,7 +32,7 @@ def google_places_json_parser(google_json):
   return records
 
 
-def google_places_callback(sess,resp):
+def google_places_callback(sess, resp):
   """ Background callback function for the FuturesSession.get parallelized
   request to the Google places API
 
@@ -71,7 +47,7 @@ def google_places_callback(sess,resp):
 
   # check that the request returned correctly
   if resp.json()['status'] != "OK":
-    print resp.url
+    resp.data = ('',[])
     return
 
   # parse the response
@@ -136,7 +112,7 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
   session = FuturesSession(max_workers=3)
 
   # input_list can be either a list of lat_lng strings or next_page_tokens
-  input_list = ['38,-77','49,20']
+  input_list = lat_lng_strs 
   is_page_tokens = False
 
   # store all the records
@@ -145,14 +121,16 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
   # Google permits at most 3 queries returning up to 20 results each 
   for i in xrange(3):
     urls = make_urls(input_list, is_page_tokens)
-    results = (session.get(url,background_callback=google_places_callback)
-               for url in urls)
+    results = ( session.get(url,background_callback=google_places_callback)
+               for url in urls )
+    print(results)
 
     npts, records = zip(*(x.result().data for x in results))
     input_list = [s for s in npts if s != '']
     is_page_tokens = True
-
-    all_records.append(records)
+    
+    
+    all_records += list(chain(*records))
 
     if len(input_list) == 0:
       break
@@ -160,8 +138,8 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
 
   df = pd.DataFrame.from_records(all_records)
 
-  return df
-
+  #return df
+  return all_records
 
 if __name__ == "__main__":
   lat_lng_strs = '38.939320,-77.059950'

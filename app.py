@@ -12,13 +12,6 @@ from geocode_query import get_zip_and_lat_lng
 from place_query import get_local_amenities
 
 
-
-# Read in all API keys from environment
-google_api_key = os.environ['GOOGLE_SERVER_API_KEY']
-google_geocode_api_key = os.environ['GOOGLE_GEOCODE_API_KEY']
-cartodb_api_key = os.environ['CARTODB_API_KEY']
-
-
 # Read in app configuration using environment variables
 app = Flask(__name__)
 app.config.from_object('amenidc_settings.Config')
