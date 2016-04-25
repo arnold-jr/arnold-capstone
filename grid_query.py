@@ -7,7 +7,7 @@ from itertools import izip, repeat, chain
 import time
 import collections
 from kitchen.text.converters import to_bytes
-
+from globals import AMENITY_TYPES
 
 def convert(data):
   """ Converts iterables and maps of unicode or strings to strings 
@@ -47,13 +47,19 @@ def google_places_json_parser(google_json):
     r['lng'] = r['geometry']['location']['lng']
     r['num_photos'] = len(r.get('photos',[]))
     
-    # flatten the list of types
+    # vectorize/flatten the list of types
     for t in r['types']:
-      r[t] = 1 
+      if t in AMENITY_TYPES:
+        r[t] = 1.0 
+   
+    # account for the types that aren't there
+    for t in AMENITY_TYPES:
+      if t not in r.keys():
+        r[t] = 0.0
 
     records.append( {k:v for k,v in r.iteritems() 
-      if k not in ['geometry','icon','opening_hours','photos','scope',
-        'reference','types']} )
+      if k in AMENITY_TYPES+['id','place_id','lat','lng','name',
+        'num_photos', 'rating','vicinity','price_level']} )
 
   # convert unicode to bytestrings
   return convert(records)
@@ -168,6 +174,7 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity,radius=1000):
 
   df = pd.DataFrame.from_records(all_records)
 
+  
   return df
 
 if __name__ == "__main__":
