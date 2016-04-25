@@ -2,7 +2,7 @@ import numpy as np
 from collections import namedtuple
 from itertools import repeat
 
-def generate_grid_points(bnd_box=(-77.13,-76.90,38.79,39.),radius=500):
+def generate_grid_points(bnd_box=(-77.15,-76.88,38.78,39.01),radius=1000):
   """ Generates a list of lat/lng coordinates representing vertices
     on a diamond-shaped grid of equilateral triangles 
  
@@ -11,9 +11,10 @@ def generate_grid_points(bnd_box=(-77.13,-76.90,38.79,39.),radius=500):
     radius: search radius, in meters
 
   Returns:
-    coords: list of (lng,lat) coordinates of the grid points
+    lat: list of latitudes
+    lng: list of longitudes
+    lat_lng_strs: list of comma-delimited strings of lat/lng
   """
-  
   
 
   # define bounding lats and lngs in degrees
@@ -49,5 +50,9 @@ def generate_grid_points(bnd_box=(-77.13,-76.90,38.79,39.),radius=500):
           (g for g in lng 
             if np.abs((g-lng_ctr)/(x1-x0))+np.abs((lat-lat_ctr)/(y1-y0)) 
             < 0.6 )))
-    
-  return coords
+ 
+  lat, lng, lat_lng_strs = list(
+      zip( *((t[0],t[1],str(t[0])+','+str(t[1])) for t in coords) )
+  )
+
+  return (lat, lng, lat_lng_strs)

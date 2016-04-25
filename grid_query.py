@@ -5,8 +5,30 @@ from requests import Session, Request
 from requests_futures.sessions import FuturesSession
 from itertools import izip, repeat, chain
 import time
+import collections
+from kitchen.text.converters import to_bytes
 
-    
+
+def convert(data):
+  """ Converts iterables and maps of unicode or strings to strings 
+
+  Args:
+    data: iterable or map or character array of mixed string/unicode types
+
+  Returns:
+    data: copy of input as bytestrings
+
+  """
+
+  if isinstance(data, basestring):
+    return to_bytes(data)
+  elif isinstance(data, collections.Mapping):
+    return dict(map(convert, data.iteritems()))
+  elif isinstance(data, collections.Iterable):
+    return type(data)(map(convert, data))
+  else:
+    return data    
+
 
 def google_places_json_parser(google_json):
   """ Parses Google Places API JSON result according to predefined template
@@ -24,12 +46,17 @@ def google_places_json_parser(google_json):
     r['lat'] = r['geometry']['location']['lat']
     r['lng'] = r['geometry']['location']['lng']
     r['num_photos'] = len(r.get('photos',[]))
+    
+    # flatten the list of types
+    for t in r['types']:
+      r[t] = 1 
 
     records.append( {k:v for k,v in r.iteritems() 
       if k not in ['geometry','icon','opening_hours','photos','scope',
-        'reference']} )
+        'reference','types']} )
 
-  return records
+  # convert unicode to bytestrings
+  return convert(records)
 
 
 def google_places_callback(sess, resp):
@@ -52,13 +79,13 @@ def google_places_callback(sess, resp):
 
   # parse the response
   records = google_places_json_parser(resp.json())
-
+  
   # assign the output to resp.data
   resp.data = (resp.json().get('next_page_token',''), records)
 
 
 
-def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
+def get_local_amenities(google_api_key,lat_lng_strs,amenity,radius=1000):
   """ Queries Google Places API for amenities within radius meters
   and stores their attributes in a dataframe 
   
@@ -123,7 +150,6 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
     urls = make_urls(input_list, is_page_tokens)
     results = ( session.get(url,background_callback=google_places_callback)
                for url in urls )
-    print(results)
 
     npts, records = zip(*(x.result().data for x in results))
     input_list = [s for s in npts if s != '']
@@ -134,13 +160,17 @@ def get_local_amenities(google_api_key,lat_lng_strs,amenity, radius=1000):
 
     if len(input_list) == 0:
       break
-    time.sleep(2) # delay because next page is not immediately available
+    elif i == 2:
+      print('Warning: More than 60 amenities found' + 
+        'for type {0}'.format(amenity) )
+
+      time.sleep(2) # delay because next page is not immediately available
 
   df = pd.DataFrame.from_records(all_records)
 
-  #return df
-  return all_records
+  return df
 
 if __name__ == "__main__":
-  lat_lng_strs = '38.939320,-77.059950'
-  get_local_amenities(google_api_key,lat_lng_strs)
+  lat_lng_strs = ['38.939320,-77.059950']
+  get_local_amenities(google_api_key,lat_lng_strs,
+      'subway_station',radius=3000)
