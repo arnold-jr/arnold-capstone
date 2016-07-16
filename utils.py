@@ -24,8 +24,23 @@ class SumTuple(SumBase):
 
 @contextlib.contextmanager
 def stopwatch(message):
-  """Context manager to print how long a block of code took."""
+  """Context manager that prints how long a block of code took.
+   
+  Args: 
+    message: string describing the event to be timed 
+  
+  Returns:
+    None
+
+  """
+  
+  print( '%s at %s' % 
+        (message.capitalize(), 
+          time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())) 
+      )
+
   t0 = time.time()
+
   try:
     yield
   finally:

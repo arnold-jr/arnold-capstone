@@ -17,15 +17,15 @@ def gen_amenity_db():
   radius = 500
   db_name = 'DATA/amenity_db'
 
-  with stopwatch('Generating grid coordinates'):
+  with stopwatch('generating grid coordinates'):
     # get the grid coordinates
     lat,lng,lat_lng_strs = generate_grid_points(radius=radius)
 
   for amenity in AMENITY_TYPES:
-    if amenity <= 'a':
+    if amenity <= 'fire_station':
       continue
     
-    with stopwatch('Requesting amenties'):
+    with stopwatch('requesting amenties'):
       # get the amenities dataframe
       df = get_local_amenities(google_api_key,
                 lat_lng_strs,
@@ -34,7 +34,7 @@ def gen_amenity_db():
      
       print(df.columns)
     
-    with stopwatch('Appending \'{0}\' search to dataframe'.format(amenity)):
+    with stopwatch('appending \'{0}\' search to dataframe'.format(amenity)):
       # store the query results in an HDF store 
       #df.to_hdf(db_name,'df',append=True)
       df.to_csv(db_name+'_'+amenity+'.csv') 

@@ -42,7 +42,6 @@ AMENITY_TYPES = [
   'embassy',
   'fire_station',
   'florist',
-  'food (deprecated)',
   'funeral_home',
   'furniture_store',
   'gas_station',
