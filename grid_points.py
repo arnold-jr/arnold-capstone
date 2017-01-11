@@ -36,7 +36,7 @@ def generate_grid_points(bnd_box=(-77.15,-76.88,38.78,39.01),radius=1000):
   conversion_lat = 1./111111.
   hy = 2*r/1.1*conversion_lat
   coords = []
-  for j in xrange(int(np.ceil((y1-y0)/hy)),-1,-1):
+  for j in range(int(np.ceil((y1-y0)/hy)),-1,-1):
     lat = y0+j*hy
     
     # degrees per meter
@@ -44,7 +44,7 @@ def generate_grid_points(bnd_box=(-77.15,-76.88,38.78,39.01),radius=1000):
     hx = hx = np.sqrt(3)/1.1*r*conversion_lng
     
     # account for offset of the equilateral triangles
-    lng = [(j%2)*hx/2+x0+i*hx for i in xrange(int(np.ceil((x1-x0)/hx)))]
+    lng = [(j%2)*hx/2+x0+i*hx for i in range(int(np.ceil((x1-x0)/hx)))]
     coords.extend(
         zip(repeat(lat),
           (g for g in lng 
@@ -55,4 +55,4 @@ def generate_grid_points(bnd_box=(-77.15,-76.88,38.78,39.01),radius=1000):
       zip( *((t[0],t[1],str(t[0])+','+str(t[1])) for t in coords) )
   )
 
-  return (lat, lng, lat_lng_strs)
+  return lat, lng, lat_lng_strs

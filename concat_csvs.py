@@ -28,6 +28,7 @@ def cat_dbs():
 
   return df
 
+
 def store_db(df):
   """ Stores the dataframe as HDF5
 
